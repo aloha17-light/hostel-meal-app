@@ -1,0 +1,20 @@
+<h2>Admin Meal Summary</h2>
+
+<p><strong>Lunch:</strong> Veg: {{ lunch_veg }} | Non-Veg: {{ lunch_nonveg }}</p>
+<p><strong>Dinner:</strong> Veg: {{ dinner_veg }} | Non-Veg: {{ dinner_nonveg }}</p>
+
+<h3>Individual Entries</h3>
+<table border="1">
+  <tr>
+    <th>User Name</th>
+    <th>Lunch</th>
+    <th>Dinner</th>
+  </tr>
+  {% for name, lunch, dinner in records %}
+  <tr>
+    <td>{{ name }}</td>
+    <td>{{ lunch or "Not Selected" }}</td>
+    <td>{{ dinner or "Not Selected" }}</td>
+  </tr>
+  {% endfor %}
+</table>
