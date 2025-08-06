@@ -70,6 +70,7 @@ def dashboard():
     return render_template('dashboard.html', name=session['name'], meal_count=count, meal_history=meal_history)
 
 
+
 @app.route('/add_meal')
 def add_meal():
     if 'user_id' not in session:
