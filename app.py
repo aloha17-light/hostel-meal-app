@@ -41,7 +41,7 @@ def login():
         conn.close()
 
         if user:
-            print("✅ Login success for:", user['name'])
+            print("Login success for:", user['name'])
             session['user_id'] = user['id']
             session['name'] = user['name']
             session['is_admin'] = bool(user['is_admin'])
