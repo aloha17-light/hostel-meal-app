@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session
 from config import get_db_connection
 from datetime import datetime
 
+
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 
@@ -91,3 +92,12 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value, format='%d-%m-%Y'):
+    if isinstance(value, str):
+        try:
+            value = datetime.strptime(value, '%Y-%m-%d')  # Adjust format if needed
+        except ValueError:
+            return value  # return as is if parsing fails
+    return value.strftime(format)
