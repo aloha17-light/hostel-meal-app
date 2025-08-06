@@ -59,15 +59,15 @@ def dashboard():
     user_id = session['user_id']
     conn = get_db_connection()
     cursor = conn.cursor()
-
     cursor.execute("SELECT COUNT(*) AS meal_count FROM meals WHERE user_id = ?", (user_id,))
     count = cursor.fetchone()['meal_count']
 
     cursor.execute("SELECT date FROM meals WHERE user_id = ? ORDER BY date DESC", (user_id,))
-    meal_history = cursor.fetchall()
+    meals = cursor.fetchall()
 
     conn.close()
-    return render_template('dashboard.html', name=session['name'], meal_count=count, meal_history=meal_history)
+
+    return render_template('dashboard.html', name=session['name'], meal_count=count, meals=meals)
 
 
 
