@@ -30,6 +30,9 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        with open("login_debug.log", "a") as f:
+            f.write(f"Trying to log in with: {email}, {password}\n")
+
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -38,11 +41,13 @@ def login():
         conn.close()
 
         if user:
+            print("✅ Login success for:", user['name'])
             session['user_id'] = user['id']
             session['name'] = user['name']
             session['is_admin'] = bool(user['is_admin'])
             return redirect('/dashboard')
         else:
+            print("❌ Login failed")
             return "Login failed"
     return render_template('login.html')
 
