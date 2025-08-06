@@ -122,7 +122,7 @@ def dashboard():
 def submit_meal():
     if 'user_id' not in session:
         return redirect(url_for('login'))
-    user_id = session['user__id']
+    user_id = session['user_id']
     today = date.today().isoformat()
     lunch = request.form.get('lunch')
     dinner = request.form.get('dinner')
