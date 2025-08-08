@@ -101,14 +101,59 @@ def login():
             return redirect(url_for('login'))
     return render_template('login.html')
 
+
 @app.route('/dashboard')
 def dashboard():
-    if 'user_id' not in session: return redirect(url_for('login'))
+    """
+    Displays the user's dashboard.
+    Now includes logic for filtering meal history by month.
+    """
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
     user_id = session['user_id']
-    with get_db_connection() as conn:
-        meals = conn.execute("SELECT date, lunch_choice, dinner_choice FROM meals WHERE user_id = ? ORDER BY date DESC", (user_id,)).fetchall()
-        today_meal = conn.execute("SELECT * FROM meals WHERE user_id = ? AND date = ?", (user_id, date.today().isoformat())).fetchone()
-    return render_template('dashboard.html', name=session['name'], meal_count=len(meals), meals=meals, already_submitted=today_meal is not None)
+    # Get the selected month from the URL query parameters (e.g., ?month=2025-08)
+    selected_month = request.args.get('month')
+
+    conn = get_db_connection()
+
+    # Get a list of all months the user has meal records for, to populate the filter dropdown
+    available_months = conn.execute("""
+        SELECT DISTINCT strftime('%Y-%m', date) as month_key
+        FROM meals
+        WHERE user_id = ?
+        ORDER BY month_key DESC
+    """, (user_id,)).fetchall()
+
+    query = "SELECT date, lunch_choice, dinner_choice FROM meals WHERE user_id = ? "
+    params = [user_id]
+
+    # If a month is selected, add a filter to the SQL query
+    if selected_month:
+        query += "AND strftime('%Y-%m', date) = ? "
+        params.append(selected_month)
+
+    query += "ORDER BY date DESC"
+
+    meals = conn.execute(query, tuple(params)).fetchall()
+    
+    # Check if a meal has already been submitted for today
+    today_meal = conn.execute(
+        "SELECT * FROM meals WHERE user_id = ? AND date = ?",
+        (user_id, date.today().isoformat())
+    ).fetchone()
+    
+    conn.close()
+
+    already_submitted = today_meal is not None
+
+    return render_template('dashboard.html',
+                           name=session['name'],
+                           meals=meals,
+                           meal_count=len(meals),
+                           already_submitted=already_submitted,
+                           available_months=available_months,
+                           selected_month=selected_month)
 
 @app.route('/submit_meal', methods=['POST'])
 def submit_meal():
